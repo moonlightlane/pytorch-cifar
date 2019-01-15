@@ -13,10 +13,19 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
-from models import *
+#from models import *
+from models.vgg import *
+from models.resnet import *
 from utils import progress_bar
 from torch.autograd import Variable
 
+import sys
+sys.path.append('../')
+#sys.path.insert(0, os.path.abspath(".."))
+#sys.path.append("/home/jack/Documents/resources/pytorch-cifar/")
+
+from pdb import set_trace
+# set_trace()
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -51,8 +60,9 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
-# net = VGG('VGG19')
-net = ResNet18()
+net = VGG('VGG11')
+# net = VGG_nonnegative_classifier('VGG11')
+# net = ResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
 # net = DenseNet121()
@@ -66,6 +76,8 @@ net = net.to(device)
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
     cudnn.benchmark = True
+
+print(net)
 
 if args.resume:
     # Load checkpoint.
@@ -93,6 +105,16 @@ def train(epoch):
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
+        
+        # hard threshold the weights to be non-negative
+        #state_dict = net.state_dict()
+        #for k, v in state_dict.items():
+        #    tmp = v >= 0
+        #    state_dict[k] = torch.mul(tmp.float(), v)
+        #net.load_state_dict(state_dict)
+        
+        # orthogonality loss
+        
 
         train_loss += loss.item()
         _, predicted = outputs.max(1)
@@ -133,10 +155,10 @@ def test(epoch):
         }
         if not os.path.isdir('checkpoint'):
             os.mkdir('checkpoint')
-        torch.save(state, './checkpoint/ckpt.t7')
+        torch.save(state, './checkpoint/vgg11_regular.t7')
         best_acc = acc
 
 
-for epoch in range(start_epoch, start_epoch+200):
+for epoch in range(start_epoch, start_epoch+300):
     train(epoch)
     test(epoch)
