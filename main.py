@@ -18,6 +18,8 @@ from models.vgg import *
 from models.resnet import *
 from utils import progress_bar
 
+from pdb import set_trace
+
 import sys
 sys.path.append('../')
 #sys.path.insert(0, os.path.abspath(".."))
@@ -71,7 +73,7 @@ net = VGG('VGG11')
 # net = DPN92()
 # net = ShuffleNetG2()
 # net = SENet18()
-net = ShuffleNetV2(1)
+# net = ShuffleNetV2(1)
 net = net.to(device)
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
@@ -123,6 +125,13 @@ def train(epoch):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+
+    # hard code change learning rate during learning:
+    if (epoch + 1) % 100 == 0:
+        args.lr = args.lr * 0.1
+        optimizer_state_dict = optimizer.state_dict()
+        optimizer_state_dict['param_groups'][0]['lr'] = args.lr
+        optimizer.load_state_dict(optimizer_state_dict)
 
 def test(epoch):
     global best_acc
