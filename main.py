@@ -17,7 +17,6 @@ import argparse
 from models.vgg import *
 from models.resnet import *
 from utils import progress_bar
-from torch.autograd import Variable
 
 import sys
 sys.path.append('../')
@@ -72,6 +71,7 @@ net = VGG('VGG11')
 # net = DPN92()
 # net = ShuffleNetG2()
 # net = SENet18()
+net = ShuffleNetV2(1)
 net = net.to(device)
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
