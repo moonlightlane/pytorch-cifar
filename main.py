@@ -61,8 +61,10 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
-net = VGG('VGG11')
-# net = VGG_nonnegative_classifier('VGG11')
+# net = VGG('VGG19')
+# net = VGG_pytorch('VGG19')
+# net = VGG_pytorch_nonnegative_classifier('VGG16')
+net = VGG_nonnegative_classifier('VGG19')
 # net = ResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
@@ -164,10 +166,10 @@ def test(epoch):
         }
         if not os.path.isdir('checkpoint'):
             os.mkdir('checkpoint')
-        torch.save(state, './checkpoint/vgg11_regular.t7')
+        torch.save(state, './checkpoint/vgg19_nonnegative_classifier.t7')
         best_acc = acc
 
 
-for epoch in range(start_epoch, start_epoch+300):
+for epoch in range(start_epoch, start_epoch+350):
     train(epoch)
     test(epoch)
